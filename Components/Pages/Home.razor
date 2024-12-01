@@ -1,0 +1,94 @@
+﻿@page "/"
+@using Microsoft.EntityFrameworkCore
+@inject IJSRuntime JSx
+@rendermode InteractiveServer
+
+
+<table border="1">
+    <tr>
+        <td><input type="text" id="input-0" @bind="ColorInput[0]" style="background-color:@Fondo(ColorInput[0]);" /></td>
+        <td><input type="text" id="input-1" @bind="ColorInput[1]" style="background-color:@Fondo(ColorInput[1]);" /></td>
+        <td><input type="text" id="input-2" @bind="ColorInput[2]" style="background-color:@Fondo(ColorInput[2]);" /></td>
+        <td><input type="text" id="input-3" @bind="ColorInput[3]" style="background-color:@Fondo(ColorInput[3]);" /></td>
+        <td><input type="text" id="input-4" @bind="ColorInput[4]" style="background-color:@Fondo(ColorInput[4]);" /></td>
+    </tr>
+    <tr>
+        <td><input type="text" id="input-5" @bind="ColorInput[5]" style="background-color:@Fondo(ColorInput[5]);" /></td>
+        <td><input type="text" id="input-6" @bind="ColorInput[6]" style="background-color:@Fondo(ColorInput[6]);" /></td>
+        <td><input type="text" id="input-7" @bind="ColorInput[7]" style="background-color:@Fondo(ColorInput[7]);" /></td>
+        <td><input type="text" id="input-8" @bind="ColorInput[8]" style="background-color:@Fondo(ColorInput[8]);" /></td>
+        <td><input type="text" id="input-9" @bind="ColorInput[9]" style="background-color:@Fondo(ColorInput[9]);" /></td>
+    </tr>
+    <tr>
+        <td><input type="text" id="input-10" @bind="ColorInput[10]" style="background-color:@Fondo(ColorInput[10]);" /></td>
+        <td><input type="text" id="input-11" @bind="ColorInput[11]" style="background-color:@Fondo(ColorInput[11]);" /></td>
+        <td><input type="text" id="input-12" @bind="ColorInput[12]" style="background-color:@Fondo(ColorInput[12]);" /></td>
+        <td><input type="text" id="input-13" @bind="ColorInput[13]" style="background-color:@Fondo(ColorInput[13]);" /></td>
+        <td><input type="text" id="input-14" @bind="ColorInput[14]" style="background-color:@Fondo(ColorInput[14]);" /></td>
+    </tr>
+    <tr>
+        <td><input type="text" id="input-15" @bind="ColorInput[15]" style="background-color:@Fondo(ColorInput[15]);" /></td>
+        <td><input type="text" id="input-16" @bind="ColorInput[16]" style="background-color:@Fondo(ColorInput[16]);" /></td>
+        <td><input type="text" id="input-17" @bind="ColorInput[17]" style="background-color:@Fondo(ColorInput[17]);" /></td>
+        <td><input type="text" id="input-18" @bind="ColorInput[18]" style="background-color:@Fondo(ColorInput[18]);" /></td>
+        <td><input type="text" id="input-19" @bind="ColorInput[19]" style="background-color:@Fondo(ColorInput[19]);" /></td>
+    </tr>
+    <tr>
+        <td><input type="text" id="input-20" @bind="ColorInput[20]" style="background-color:@Fondo(ColorInput[20]);" /></td>
+        <td><input type="text" id="input-21" @bind="ColorInput[21]" style="background-color:@Fondo(ColorInput[21]);" /></td>
+        <td><input type="text" id="input-22" @bind="ColorInput[22]" style="background-color:@Fondo(ColorInput[22]);" /></td>
+        <td><input type="text" id="input-23" @bind="ColorInput[23]" style="background-color:@Fondo(ColorInput[23]);" /></td>
+        <td><input type="text" id="input-24" @bind="ColorInput[24]" style="background-color:@Fondo(ColorInput[24]);" /></td>
+    </tr>
+</table>
+
+<p>Cantidad de rojos: @Rojo</p>
+<p>Cantidad de azules: @Azul</p>
+<p>Cantidad de verdes: @Verde</p>
+
+<button @onclick="Guardar">Guardar</button>
+
+@code {
+    private List<string> ColorInput = new List<string>(new string[25]);
+
+    private string Fondo(string inputColor)
+    {
+        if (string.IsNullOrEmpty(inputColor))
+        {
+            return "white";
+        }
+
+        return inputColor.ToLower() switch
+        {
+            "rojo" => "red",
+            "verde" => "green",
+            "azul" => "blue",
+            _ => "white" 
+        };
+    }
+
+    private int Rojo => ColorInput.Count(c => c?.ToLower() == "rojo");
+    private int Verde => ColorInput.Count(c => c?.ToLower() == "verde");
+    private int Azul => ColorInput.Count(c => c?.ToLower() == "azul");
+
+    async Task Guardar(){
+
+        var guardar = System.Text.Json.JsonSerializer.Serialize(ColorInput);
+
+        await JSx.InvokeVoidAsync("localStorage.setItem", "Datos", guardar);
+        await JSx.InvokeVoidAsync("alert", "Se guardo correctamente");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender){
+
+        if(firstRender){
+            var json = await JSx.InvokeAsync<string>("localStorage.getItem", "Datos");
+
+            if(!string.IsNullOrEmpty(json)){
+                ColorInput = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json);
+                StateHasChanged();
+            }
+        }
+    }
+    
+}
